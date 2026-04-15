@@ -1,27 +1,15 @@
-FROM node:20-bookworm-slim
+FROM node:alpine3.20
 
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    python3-venv \
-    openssl \
-    curl \
-    iproute2 \
-    coreutils \
-    bash \
-    ca-certificates \
- && ln -sf /usr/bin/python3 /usr/bin/python \
- && rm -rf /var/lib/apt/lists/*
-
-COPY package.json ./
-RUN npm install --omit=dev
+WORKDIR /tmp
 
 COPY . .
 
-RUN chmod +x index.js
-
 EXPOSE 3000/tcp
+
+RUN apk update && apk upgrade &&\
+    apk add --no-cache openssl curl gcompat iproute2 coreutils &&\
+    apk add --no-cache bash &&\
+    chmod +x index.js &&\
+    npm install
 
 CMD ["node", "index.js"]
